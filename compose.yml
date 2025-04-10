@@ -1,0 +1,45 @@
+services:
+
+  php-app:
+    container_name: run-php-app
+    build: ./app
+    ports:
+    - "18080:80"
+    volumes:
+    - ./app/src:/var/www/html/
+    networks:
+    - php-mysql-networks
+    depends_on:
+    - php-db
+  
+  php-db:
+    image: mysql:8.0
+    container_name: run-php-db
+    ports:
+    - "3307:3306"
+    environment:
+    - MYSQL_ROOT_PASSWORD=root
+    - MYSQL_USER=test
+    - MYSQL_PASSWORD=test
+    - MYSQL_DATABASE=test_db
+    volumes:
+    - ./mysql/initdb.d:/docker-entrypoint-initdb.d
+    - mysql-data:/var/lib/mysql
+    networks:
+    - php-mysql-networks
+
+  php-adminer:
+    image: adminer:4.8.1
+    container_name: adminer
+    ports:
+    - "8081:8080"
+    networks:
+    - php-mysql-networks
+    depends_on:
+    - php-db
+
+volumes:
+  mysql-data:
+
+networks:
+  php-mysql-networks:
